@@ -214,9 +214,8 @@ big_integer big_integer::absolute() const {
 
 big_integer &big_integer::operator=(big_integer const &other) = default;
 
-big_integer &big_integer::operator+=(big_integer const &r) {
+big_integer &big_integer::operator+=(big_integer const &rhs) {
     big_integer &lhs = *this;
-    big_integer rhs = r;
 
     if (lhs.negative == rhs.negative) {
         lhs.add_unsigned(rhs);
@@ -234,9 +233,8 @@ big_integer &big_integer::operator+=(big_integer const &r) {
     return lhs;
 }
 
-big_integer &big_integer::operator-=(big_integer const &r) {
+big_integer &big_integer::operator-=(big_integer const &rhs) {
     big_integer &lhs = *this;
-    big_integer rhs = r;
 
     if (lhs.negative == rhs.negative) {
         if (lhs.absolute() >= rhs.absolute())
