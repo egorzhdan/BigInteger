@@ -32,7 +32,7 @@ void big_integer::clear() {
 }
 
 void big_integer::shift_left_by_words(std::size_t cnt) {
-    for (size_t step = 0; step < cnt; ++step) {
+    for (std::size_t step = 0; step < cnt; ++step) {
         digits.insert(digits.begin(), 0);
     }
 }
@@ -547,7 +547,7 @@ bool operator<(big_integer const &a, big_integer const &b) {
                a.digits.size() > b.digits.size() :
                a.digits.size() < b.digits.size();
 
-    for (size_t j = 0, i = a.digits.size() - 1; j < a.digits.size(); j++, i--) {
+    for (std::size_t j = 0, i = a.digits.size() - 1; j < a.digits.size(); j++, i--) {
         if (a.digits[i] != b.digits[i])
             return a.negative ?
                    a.digits[i] > b.digits[i] :
