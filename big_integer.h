@@ -4,6 +4,7 @@
 #include <cstddef>
 #include <cstdint>
 #include <iosfwd>
+#include <limits>
 #include <vector>
 
 struct big_integer {
