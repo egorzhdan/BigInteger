@@ -258,10 +258,10 @@ big_integer &big_integer::operator-=(big_integer const &r) {
     return lhs;
 }
 
-big_integer &big_integer::operator*=(big_integer const &r) {
+big_integer &big_integer::operator*=(big_integer const &rhs) {
     big_integer lhs_copy = *this;
     big_integer &lhs = *this;
-    big_integer rhs = r;
+//    big_integer rhs = r;
 //    lhs.clear();
     lhs.digits.resize(lhs_copy.digits.size() + rhs.digits.size() + 1);
     std::fill(lhs.digits.begin(), lhs.digits.end(), 0);
