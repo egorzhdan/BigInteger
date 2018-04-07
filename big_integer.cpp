@@ -177,7 +177,9 @@ big_integer::big_integer(big_integer::digit_t a) {
 
 big_integer::big_integer(int a) {
     digits = std::vector<digit_t>();
-    digits.push_back((digit_t) abs(a));
+    digit_t aa = (digit_t) a;
+    if (a < 0) aa = -aa;
+    digits.push_back(aa);
     negative = (a < 0);
     shrink();
 }
