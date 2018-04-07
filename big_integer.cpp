@@ -414,7 +414,7 @@ big_integer &big_integer::operator<<=(int rhs) {
 
     big_integer &lhs = *this;
     lhs.shift_left_by_words(rhs / DIGIT_MASK);
-    for (int step = 0; step < (rhs % DIGIT_MASK); step++) {
+    for (digit_t step = 0; step < (rhs % DIGIT_MASK); step++) {
         lhs.mul_unsigned(2);
     }
     lhs.shrink();
@@ -426,7 +426,7 @@ big_integer &big_integer::operator>>=(int rhs) {
 
     big_integer &lhs = *this;
     lhs.shift_right_by_words(rhs / DIGIT_MASK);
-    for (int step = 0; step < (rhs % DIGIT_MASK); step++) {
+    for (digit_t step = 0; step < (rhs % DIGIT_MASK); step++) {
         lhs.div_mod_unsigned(2);
     }
     if (lhs.negative) lhs--;
