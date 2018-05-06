@@ -6,6 +6,7 @@
 #include <iosfwd>
 #include <limits>
 #include <vector>
+#include <folly/FBString.h>
 
 struct big_integer {
     big_integer();
@@ -73,10 +74,11 @@ struct big_integer {
 private:
     typedef uint32_t digit_t;
     typedef uint64_t double_digit_t;
+    typedef folly::basic_fbstring<digit_t> digit_vector;
     static const int DIGIT_BASE = 32;
-    static const digit_t DIGIT_MASK = std::numeric_limits<digit_t>().max();
+    static const digit_t DIGIT_MASK = std::numeric_limits<digit_t>::max();
 
-    std::vector<digit_t> digits;
+    digit_vector digits;
     bool negative;
 
     big_integer(digit_t a);

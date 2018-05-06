@@ -99,20 +99,6 @@ void big_integer::sub_unsigned(big_integer other) {
 }
 
 void big_integer::mul_unsigned(big_integer::digit_t a) {
-//    if (a <= 10) {
-//        if (a == 0) {
-//            clear();
-//            return;
-//        }
-//
-//        // TODO optimize maybe
-//        big_integer b = *this;
-//        for (digit_t step = 1; step < a; ++step) {
-//            add_unsigned(b);
-//        }
-//        return;
-//    }
-
     digit_t carry = 0;
     for (digit_t &digit : digits) {
         double_digit_t cur = (double_digit_t) digit * a + carry;
@@ -143,7 +129,7 @@ void big_integer::bitwise_negate_digits() {
 
 big_integer big_integer::slice_by_words(std::size_t from, std::size_t to) {
     big_integer res = big_integer();
-    res.digits = std::vector<digit_t>(digits.begin() + from, digits.begin() + to);
+    res.digits = digit_vector(digits.begin() + from, digits.begin() + to);
     return res;
 }
 
@@ -164,19 +150,19 @@ void big_integer::from_complementary2() {
 
 // MARK: Constructors
 
-big_integer::big_integer() : digits(0), negative(false) {}
+big_integer::big_integer() : digits(), negative(false) {}
 
 big_integer::big_integer(big_integer const &other) = default;
 
 big_integer::big_integer(big_integer::digit_t a) {
-    digits = std::vector<digit_t>();
+    digits = digit_vector();
     digits.push_back(a);
     negative = false;
     shrink();
 }
 
 big_integer::big_integer(int a) {
-    digits = std::vector<digit_t>();
+    digits = digit_vector();
     digit_t aa = (digit_t) a;
     if (a < 0) aa = -aa;
     digits.push_back(aa);
@@ -299,18 +285,13 @@ big_integer &big_integer::operator/=(big_integer const &rh) {
         return lhs = 0;
     }
 
-//    while (!lhs.is_zero() && lhs.is_even() && rhs.is_even()) {
-//        lhs.div_mod_unsigned(2);
-//        rhs.div_mod_unsigned(2);
-//    }
-
     // Source: https://members.loria.fr/PZimmermann/mca/mca-0.5.pdf
 
     auto normalization = (digit_t) (((double_digit_t) DIGIT_MASK + 1) / ((double_digit_t) rhs.digits.back() + 1));
     lhs *= normalization;
     rhs *= normalization;
 
-    std::vector<digit_t> new_digits(lhs.digits.size() - rhs.digits.size() + 1);
+    digit_vector new_digits(lhs.digits.size() - rhs.digits.size() + 1, 0);
 
     big_integer remainder = lhs.slice_by_words(lhs.digits.size() - rhs.digits.size() + 1, lhs.digits.size());
     double_digit_t highest_digit = (rhs.is_zero() ? 0 : rhs.digits.back());
@@ -356,7 +337,7 @@ big_integer &big_integer::operator&=(big_integer const &rhs) {
     new_rhs.to_complementary2();
 
     std::size_t size = std::min(lhs.digits.size(), new_rhs.digits.size());
-    std::vector<digit_t> new_digits(size);
+    digit_vector new_digits(size, 0);
 #pragma omp parallel for
     for (std::size_t i = 0; i < size; i++) {
         new_digits[i] = (lhs.digits[i] & new_rhs.digits[i]);
@@ -376,7 +357,7 @@ big_integer &big_integer::operator|=(big_integer const &rhs) {
     new_rhs.to_complementary2();
 
     std::size_t size = std::max(lhs.digits.size(), new_rhs.digits.size());
-    std::vector<digit_t> new_digits(size);
+    digit_vector new_digits(size, 0);
 #pragma omp parallel for
     for (std::size_t i = 0; i < size; i++) {
         new_digits[i] = ((i < lhs.digits.size() ? lhs.digits[i] : 0) |
@@ -397,7 +378,7 @@ big_integer &big_integer::operator^=(big_integer const &rhs) {
     new_rhs.to_complementary2();
 
     std::size_t size = std::max(lhs.digits.size(), new_rhs.digits.size());
-    std::vector<digit_t> new_digits(size);
+    digit_vector new_digits(size, 0);
 #pragma omp parallel for
     for (std::size_t i = 0; i < size; i++) {
         new_digits[i] = ((i < lhs.digits.size() ? lhs.digits[i] : 0) ^
