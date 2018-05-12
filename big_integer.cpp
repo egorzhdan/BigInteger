@@ -152,7 +152,10 @@ void big_integer::from_complementary2() {
 
 big_integer::big_integer() : digits(), negative(false) {}
 
-big_integer::big_integer(big_integer const &other) = default;
+big_integer::big_integer(big_integer const &other) noexcept {
+    this->digits = digit_vector(other.digits);
+    this->negative = other.negative;
+}
 
 big_integer::big_integer(big_integer::digit_t a) {
     digits = digit_vector();
@@ -198,7 +201,11 @@ big_integer big_integer::absolute() const {
     return x;
 }
 
-big_integer &big_integer::operator=(big_integer const &other) = default;
+big_integer &big_integer::operator=(big_integer const &other) noexcept {
+    this->digits = other.digits;
+    this->negative = other.negative;
+    return *this;
+}
 
 big_integer &big_integer::operator+=(big_integer const &rhs) {
     big_integer &lhs = *this;

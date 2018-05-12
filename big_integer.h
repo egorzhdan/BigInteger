@@ -11,7 +11,7 @@
 struct big_integer {
     big_integer();
 
-    big_integer(big_integer const &other);
+    big_integer(big_integer const &other) noexcept;
 
     big_integer(int a);
 
@@ -21,7 +21,7 @@ struct big_integer {
 
     big_integer absolute() const;
 
-    big_integer &operator=(big_integer const &other);
+    big_integer &operator=(big_integer const &other) noexcept;
 
     big_integer &operator+=(big_integer const &rhs);
 
