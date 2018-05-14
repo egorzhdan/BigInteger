@@ -3,7 +3,6 @@ cmake_minimum_required(VERSION 3.9)
 project(BigInteger)
 
 include_directories(${BIGINT_SOURCE_DIR})
-include_directories("/usr/local/Cellar/folly/2018.04.30.00/include")
 
 add_executable(
         big_integer_testing
@@ -13,7 +12,7 @@ add_executable(
         big_integer_testing.cpp
         big_integer.h
         big_integer.cpp
-)
+        digit_vector.cpp digit_vector.h)
 
 #if(CMAKE_COMPILER_IS_GNUCC OR CMAKE_COMPILER_IS_GNUCXX)
 #set(CMAKE_CXX_COMPILER "g++-6")
@@ -23,4 +22,4 @@ set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -O2")
 #set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE}")
 #endif()
 
-target_link_libraries(big_integer_testing)
+target_link_libraries(big_integer_testing -lpthread)

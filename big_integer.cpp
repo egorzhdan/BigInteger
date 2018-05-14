@@ -48,38 +48,38 @@ void big_integer::shift_right_by_words(std::size_t cnt) {
     shrink();
 }
 
-void big_integer::add_unsigned_shifted_by_words(big_integer::digit_t a, std::size_t shift) {
+void big_integer::add_unsigned_shifted_by_words(digit_vector::digit_t a, std::size_t shift) {
     while (shift >= digits.size()) digits.push_back(0);
 
-    digit_t carry = a;
+    digit_vector::digit_t carry = a;
     for (std::size_t i = shift; i < digits.size() && carry > 0; i++) {
-        double_digit_t cur = (double_digit_t) digits[i] + carry;
-        if (cur > DIGIT_MASK) {
-            carry = (digit_t) ((cur - (cur & DIGIT_MASK)) >> DIGIT_BASE);
+        digit_vector::double_digit_t cur = (digit_vector::double_digit_t) digits[i] + carry;
+        if (cur > digit_vector::DIGIT_MASK) {
+            carry = (digit_vector::digit_t) ((cur - (cur & digit_vector::DIGIT_MASK)) >> digit_vector::DIGIT_BASE);
         } else {
             carry = 0;
         }
-        digits[i] = (digit_t) cur;
+        digits[i] = (digit_vector::digit_t) cur;
     }
     if (carry > 0) digits.push_back(carry);
 
     shrink();
 }
 
-void big_integer::sub_unsigned_shifted_by_words(big_integer::digit_t a, std::size_t shift) {
+void big_integer::sub_unsigned_shifted_by_words(digit_vector::digit_t a, std::size_t shift) {
     while (shift >= digits.size()) digits.push_back(0);
 
-    digit_t carry = a;
+    digit_vector::digit_t carry = a;
     for (std::size_t i = shift; i < digits.size() && carry > 0; i++) {
-        double_digit_t cur = digits[i];
+        digit_vector::double_digit_t cur = digits[i];
         if (cur < carry) {
-            cur = cur + DIGIT_MASK + 1 - carry;
+            cur = cur + digit_vector::DIGIT_MASK + 1 - carry;
             carry = 1;
         } else {
             cur -= carry;
             carry = 0;
         }
-        digits[i] = (digit_t) cur;
+        digits[i] = (digit_vector::digit_t) cur;
     }
     if (carry > 0) throw std::runtime_error("carry is non-zero");
 
@@ -98,30 +98,30 @@ void big_integer::sub_unsigned(big_integer other) {
     }
 }
 
-void big_integer::mul_unsigned(big_integer::digit_t a) {
-    digit_t carry = 0;
-    for (digit_t &digit : digits) {
-        double_digit_t cur = (double_digit_t) digit * a + carry;
-        digit = (digit_t) (cur & DIGIT_MASK);
-        carry = (digit_t) (cur >> DIGIT_BASE);
+void big_integer::mul_unsigned(digit_vector::digit_t a) {
+    digit_vector::digit_t carry = 0;
+    for (digit_vector::digit_t &digit : digits) {
+        digit_vector::double_digit_t cur = (digit_vector::double_digit_t) digit * a + carry;
+        digit = (digit_vector::digit_t) (cur & digit_vector::DIGIT_MASK);
+        carry = (digit_vector::digit_t) (cur >> digit_vector::DIGIT_BASE);
     }
     if (carry > 0) digits.push_back(carry);
     shrink();
 }
 
-big_integer::digit_t big_integer::div_mod_unsigned(big_integer::digit_t a) {
-    digit_t carry = 0;
+digit_vector::digit_t big_integer::div_mod_unsigned(digit_vector::digit_t a) {
+    digit_vector::digit_t carry = 0;
     for (std::size_t tmp = 0, i = digits.size() - 1; tmp < digits.size(); tmp++, i--) {
-        double_digit_t cur = (((double_digit_t) carry) << DIGIT_BASE) + digits[i];
-        carry = (digit_t) (cur % a);
-        digits[i] = (digit_t) (cur / a);
+        digit_vector::double_digit_t cur = (((digit_vector::double_digit_t) carry) << digit_vector::DIGIT_BASE) + digits[i];
+        carry = (digit_vector::digit_t) (cur % a);
+        digits[i] = (digit_vector::digit_t) (cur / a);
     }
     shrink();
     return carry;
 }
 
 void big_integer::bitwise_negate_digits() {
-    for (digit_t &digit : digits) {
+    for (digit_vector::digit_t &digit : digits) {
         digit = ~digit;
     }
     add_unsigned_shifted_by_words(1);
@@ -129,7 +129,10 @@ void big_integer::bitwise_negate_digits() {
 
 big_integer big_integer::slice_by_words(std::size_t from, std::size_t to) {
     big_integer res = big_integer();
-    res.digits = digit_vector(digits.begin() + from, digits.begin() + to);
+//    res.digits = digit_vector(digits.begin() + from, digits.begin() + to);
+    for (std::size_t i = from; i < to; i++) {
+        res.digits.push_back(digits[i]);
+    }
     return res;
 }
 
@@ -141,7 +144,7 @@ void big_integer::to_complementary2() {
 }
 
 void big_integer::from_complementary2() {
-    bool neg = !is_zero() && ((digits.back() >> (DIGIT_BASE - 1)) != 0);
+    bool neg = !is_zero() && ((digits.back() >> (digit_vector::DIGIT_BASE - 1)) != 0);
     if (neg) {
         bitwise_negate_digits();
         negative = true;
@@ -157,7 +160,7 @@ big_integer::big_integer(big_integer const &other) noexcept {
     this->negative = other.negative;
 }
 
-big_integer::big_integer(big_integer::digit_t a) {
+big_integer::big_integer(digit_vector::digit_t a) {
     digits = digit_vector();
     digits.push_back(a);
     negative = false;
@@ -166,7 +169,7 @@ big_integer::big_integer(big_integer::digit_t a) {
 
 big_integer::big_integer(int a) {
     digits = digit_vector();
-    digit_t aa = (digit_t) a;
+    digit_vector::digit_t aa = (digit_vector::digit_t) a;
     if (a < 0) aa = -aa;
     digits.push_back(aa);
     negative = (a < 0);
@@ -184,7 +187,7 @@ big_integer::big_integer(std::string const &str) {
             throw std::invalid_argument("non-digit character found in the string");
         } else {
             mul_unsigned(10);
-            add_unsigned_shifted_by_words((digit_t) (c - '0'));
+            add_unsigned_shifted_by_words((digit_vector::digit_t) (c - '0'));
         }
     }
     shrink();
@@ -256,18 +259,25 @@ big_integer &big_integer::operator*=(big_integer const &rhs) {
     big_integer &lhs = *this;
 //    big_integer rhs = r;
 //    lhs.clear();
-    lhs.digits.resize(lhs_copy.digits.size() + rhs.digits.size() + 1);
-    std::fill(lhs.digits.begin(), lhs.digits.end(), 0);
+//    lhs.digits.resize(lhs_copy.digits.size() + rhs.digits.size() + 1);
+//    std::fill(lhs.digits.begin(), lhs.digits.end(), 0);
+    std::size_t sz = lhs_copy.digits.size() + rhs.digits.size() + 1;
+    auto *digits = new digit_vector::digit_t[sz];
+    memset(digits, 0, sz * sizeof(digit_vector::digit_t));
 
     for (std::size_t i = 0; i < lhs_copy.digits.size(); i++) {
-        digit_t carry = 0;
+        digit_vector::digit_t carry = 0;
         for (std::size_t j = 0; j < rhs.digits.size() || carry > 0; j++) {
-            double_digit_t cur = (double_digit_t) lhs.digits[i + j] + carry +
-                                 (double_digit_t) lhs_copy.digits[i] * (j < rhs.digits.size() ? rhs.digits[j] : 0);
-            lhs.digits[i + j] = (digit_t) (cur & DIGIT_MASK);
-            carry = (digit_t) (cur >> DIGIT_BASE);
+            digit_vector::double_digit_t cur = (digit_vector::double_digit_t) digits[i + j] + carry +
+                                               (digit_vector::double_digit_t) lhs_copy.digits[i] * (j < rhs.digits.size() ? rhs.digits[j] : 0);
+            digits[i + j] = (digit_vector::digit_t) (cur & digit_vector::DIGIT_MASK);
+            carry = (digit_vector::digit_t) (cur >> digit_vector::DIGIT_BASE);
         }
     }
+
+//    lhs.digits.clear();
+//    for (const auto &d : digits) lhs.digits.push_back(d);
+    lhs.digits = digit_vector(digits, sz);
 
     if (rhs.negative) lhs.negate();
     lhs.shrink();
@@ -294,35 +304,35 @@ big_integer &big_integer::operator/=(big_integer const &rh) {
 
     // Source: https://members.loria.fr/PZimmermann/mca/mca-0.5.pdf
 
-    auto normalization = (digit_t) (((double_digit_t) DIGIT_MASK + 1) / ((double_digit_t) rhs.digits.back() + 1));
+    auto normalization = (digit_vector::digit_t) (((digit_vector::double_digit_t) digit_vector::DIGIT_MASK + 1) / ((digit_vector::double_digit_t) rhs.digits.back() + 1));
     lhs *= normalization;
     rhs *= normalization;
 
-    digit_vector new_digits(lhs.digits.size() - rhs.digits.size() + 1, 0);
+    digit_vector new_digits(lhs.digits.size() - rhs.digits.size() + 1);
 
     big_integer remainder = lhs.slice_by_words(lhs.digits.size() - rhs.digits.size() + 1, lhs.digits.size());
-    double_digit_t highest_digit = (rhs.is_zero() ? 0 : rhs.digits.back());
+    digit_vector::double_digit_t highest_digit = (rhs.is_zero() ? 0 : rhs.digits.back());
 
     for (std::size_t tmp = 0, dig = new_digits.size() - 1; tmp < new_digits.size(); tmp++, dig--) {
-        remainder <<= DIGIT_BASE;
+        remainder <<= digit_vector::DIGIT_BASE;
         remainder += lhs.digits[dig];
 
-        double_digit_t rem_highest = (remainder.is_zero() ? 0 : remainder.digits.back());
+        digit_vector::double_digit_t rem_highest = (remainder.is_zero() ? 0 : remainder.digits.back());
         if (remainder.digits.size() > rhs.digits.size()) {
-            rem_highest <<= DIGIT_BASE;
+            rem_highest <<= digit_vector::DIGIT_BASE;
             rem_highest += remainder.digits[remainder.digits.size() - 2];
         }
 
-        double_digit_t quotient = rem_highest / highest_digit;
-        if (quotient >= DIGIT_MASK) quotient = DIGIT_MASK;
+        digit_vector::double_digit_t quotient = rem_highest / highest_digit;
+        if (quotient >= digit_vector::DIGIT_MASK) quotient = digit_vector::DIGIT_MASK;
 
-        big_integer mul_dq = rhs * (digit_t) (quotient & DIGIT_MASK);
+        big_integer mul_dq = rhs * (digit_vector::digit_t) (quotient & digit_vector::DIGIT_MASK);
         while (remainder < mul_dq) {
             quotient--;
             mul_dq -= rhs;
         }
 
-        new_digits[dig] = (digit_t) (quotient & DIGIT_MASK);
+        new_digits[dig] = (digit_vector::digit_t) (quotient & digit_vector::DIGIT_MASK);
         remainder -= mul_dq;
     }
 
@@ -344,7 +354,7 @@ big_integer &big_integer::operator&=(big_integer const &rhs) {
     new_rhs.to_complementary2();
 
     std::size_t size = std::min(lhs.digits.size(), new_rhs.digits.size());
-    digit_vector new_digits(size, 0);
+    digit_vector new_digits(size);
 #pragma omp parallel for
     for (std::size_t i = 0; i < size; i++) {
         new_digits[i] = (lhs.digits[i] & new_rhs.digits[i]);
@@ -364,7 +374,7 @@ big_integer &big_integer::operator|=(big_integer const &rhs) {
     new_rhs.to_complementary2();
 
     std::size_t size = std::max(lhs.digits.size(), new_rhs.digits.size());
-    digit_vector new_digits(size, 0);
+    digit_vector new_digits(size);
 #pragma omp parallel for
     for (std::size_t i = 0; i < size; i++) {
         new_digits[i] = ((i < lhs.digits.size() ? lhs.digits[i] : 0) |
@@ -385,7 +395,7 @@ big_integer &big_integer::operator^=(big_integer const &rhs) {
     new_rhs.to_complementary2();
 
     std::size_t size = std::max(lhs.digits.size(), new_rhs.digits.size());
-    digit_vector new_digits(size, 0);
+    digit_vector new_digits(size);
 #pragma omp parallel for
     for (std::size_t i = 0; i < size; i++) {
         new_digits[i] = ((i < lhs.digits.size() ? lhs.digits[i] : 0) ^
@@ -401,9 +411,9 @@ big_integer &big_integer::operator<<=(int rhs) {
     if (rhs < 0) operator>>=(-rhs);
 
     big_integer &lhs = *this;
-    lhs.shift_left_by_words(rhs / DIGIT_MASK);
-    auto bound = (rhs % DIGIT_MASK);
-    for (digit_t step = 0; step < bound; step++) {
+    lhs.shift_left_by_words(rhs / digit_vector::DIGIT_MASK);
+    auto bound = (rhs % digit_vector::DIGIT_MASK);
+    for (digit_vector::digit_t step = 0; step < bound; step++) {
         lhs.mul_unsigned(2);
     }
     lhs.shrink();
@@ -414,9 +424,9 @@ big_integer &big_integer::operator>>=(int rhs) {
     if (rhs < 0) operator<<=(-rhs);
 
     big_integer &lhs = *this;
-    lhs.shift_right_by_words(rhs / DIGIT_MASK);
-    auto bound = (rhs % DIGIT_MASK);
-    for (digit_t step = 0; step < bound; step++) {
+    lhs.shift_right_by_words(rhs / digit_vector::DIGIT_MASK);
+    auto bound = (rhs % digit_vector::DIGIT_MASK);
+    for (digit_vector::digit_t step = 0; step < bound; step++) {
         lhs.div_mod_unsigned(2);
     }
     if (lhs.negative) lhs--;

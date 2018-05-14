@@ -6,14 +6,14 @@
 #include <iosfwd>
 #include <limits>
 #include <vector>
-#include <folly/FBString.h>
+#include "digit_vector.h"
 
 struct big_integer {
     big_integer();
 
     big_integer(big_integer const &other) noexcept;
 
-    big_integer(int a);
+    big_integer(int a); // NOLINT
 
     explicit big_integer(std::string const &str);
 
@@ -72,16 +72,10 @@ struct big_integer {
     friend std::string to_string(big_integer const &a);
 
 private:
-    typedef uint32_t digit_t;
-    typedef uint64_t double_digit_t;
-    typedef folly::basic_fbstring<digit_t> digit_vector;
-    static const int DIGIT_BASE = 32;
-    static const digit_t DIGIT_MASK = std::numeric_limits<digit_t>::max();
-
     digit_vector digits;
     bool negative;
 
-    big_integer(digit_t a);
+    big_integer(digit_vector::digit_t a); // NOLINT
 
     void shrink();
 
@@ -99,17 +93,17 @@ private:
 
     void shift_right_by_words(std::size_t cnt);
 
-    void add_unsigned_shifted_by_words(digit_t a, std::size_t shift = 0);
+    void add_unsigned_shifted_by_words(digit_vector::digit_t a, std::size_t shift = 0);
 
-    void sub_unsigned_shifted_by_words(digit_t a, std::size_t shift = 0);
+    void sub_unsigned_shifted_by_words(digit_vector::digit_t a, std::size_t shift = 0);
 
     void add_unsigned(big_integer other);
 
     void sub_unsigned(big_integer other);
 
-    void mul_unsigned(digit_t a);
+    void mul_unsigned(digit_vector::digit_t a);
 
-    digit_t div_mod_unsigned(digit_t a);
+    digit_vector::digit_t div_mod_unsigned(digit_vector::digit_t a);
 
     big_integer slice_by_words(std::size_t from, std::size_t to);
 
