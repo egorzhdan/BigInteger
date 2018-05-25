@@ -2,6 +2,8 @@
 #define BIGINTEGER_DIGIT_VECTOR_H
 
 #include <cstdint>
+#include <iterator>
+#include <algorithm>
 #include <memory>
 #include <limits>
 

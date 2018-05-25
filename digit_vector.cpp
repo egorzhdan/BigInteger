@@ -1,10 +1,6 @@
 #include "digit_vector.h"
 
-digit_vector::digit_vector() noexcept {
-    is_small = true;
-    _size = 0;
-    small = 0;
-}
+digit_vector::digit_vector() noexcept : is_small(true), _size(0), small(0) {}
 
 digit_vector::digit_vector(std::size_t initial_size) : digit_vector() {
     if (initial_size <= 1) {
@@ -77,7 +73,7 @@ void digit_vector::increase_capacity() {
         std::size_t new_capacity = 2 * big.capacity;
 
         auto *clone = new digit_t[new_capacity];
-        memcpy(clone, big.data.get(), big.capacity * sizeof(digit_t));
+        std::copy(big.data.get(), big.data.get() + big.capacity, clone);
 
         new(&big.data) std::shared_ptr<digit_t>(clone);
         big.capacity = new_capacity;
@@ -208,7 +204,7 @@ void digit_vector::prepare_mutation() {
     if (big.data.unique()) return;
 
     auto *clone = new digit_t[big.capacity];
-    memcpy(clone, big.data.get(), big.capacity * sizeof(digit_t));
+    std::copy(big.data.get(), big.data.get() + big.capacity, clone);
 
     new(&big.data) std::shared_ptr<digit_t>(clone);
 }

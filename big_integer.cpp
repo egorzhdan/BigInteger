@@ -155,15 +155,10 @@ void big_integer::from_complementary2() {
 
 big_integer::big_integer() : digits(), negative(false) {}
 
-big_integer::big_integer(big_integer const &other) noexcept {
-    this->digits = digit_vector(other.digits);
-    this->negative = other.negative;
-}
+big_integer::big_integer(big_integer const &other) noexcept : digits(other.digits), negative(other.negative) {}
 
-big_integer::big_integer(digit_vector::digit_t a) {
-    digits = digit_vector();
+big_integer::big_integer(digit_vector::digit_t a) : negative(false) {
     digits.push_back(a);
-    negative = false;
     shrink();
 }
 
@@ -263,7 +258,7 @@ big_integer &big_integer::operator*=(big_integer const &rhs) {
 //    std::fill(lhs.digits.begin(), lhs.digits.end(), 0);
     std::size_t sz = lhs_copy.digits.size() + rhs.digits.size() + 1;
     auto *digits = new digit_vector::digit_t[sz];
-    memset(digits, 0, sz * sizeof(digit_vector::digit_t));
+    std::fill(digits, digits + sz, 0);
 
     for (std::size_t i = 0; i < lhs_copy.digits.size(); i++) {
         digit_vector::digit_t carry = 0;
