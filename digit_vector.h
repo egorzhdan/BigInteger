@@ -18,9 +18,9 @@ public:
 
     explicit digit_vector(std::size_t initial_size);
 
-    digit_vector(digit_t* ptr, std::size_t size);
+    digit_vector(digit_t *ptr, std::size_t size);
 
-    digit_vector(const digit_vector& rhs);
+    digit_vector(const digit_vector &rhs);
 
     void push_back(const digit_t &item);
 
@@ -44,21 +44,25 @@ public:
 
     const digit_t &operator[](std::size_t idx) const;
 
-    digit_vector &operator=(const digit_vector& rhs);
+    digit_vector &operator=(const digit_vector &rhs);
 
     ~digit_vector();
 
     typedef digit_t *iterator;
-
     typedef const digit_t *const_iterator;
+    typedef std::reverse_iterator<const_iterator> reverse_const_iterator;
 
     iterator begin();
 
     const_iterator begin() const;
 
+    reverse_const_iterator rbegin() const;
+
     iterator end();
 
     const_iterator end() const;
+
+    reverse_const_iterator rend() const;
 
     void insert(const_iterator pos, const digit_t &value);
 

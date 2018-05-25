@@ -341,65 +341,39 @@ big_integer &big_integer::operator%=(big_integer const &rhs) {
     return *this -= rhs * q;
 }
 
-big_integer &big_integer::operator&=(big_integer const &rhs) {
+template<class Function>
+void big_integer::apply_bitwise_operation(const big_integer &rhs, Function function) {
     big_integer &lhs = *this;
 
     big_integer new_rhs = rhs;
     lhs.to_complementary2();
     new_rhs.to_complementary2();
 
-    std::size_t size = std::min(lhs.digits.size(), new_rhs.digits.size());
+    std::size_t size = std::max(lhs.digits.size(), new_rhs.digits.size());
     digit_vector new_digits(size);
 #pragma omp parallel for
     for (std::size_t i = 0; i < size; i++) {
-        new_digits[i] = (lhs.digits[i] & new_rhs.digits[i]);
+        new_digits[i] = function(lhs.digits[i], new_rhs.digits[i]);
     }
     lhs.digits = new_digits;
     lhs.from_complementary2();
 
     lhs.shrink();
-    return lhs;
+}
+
+big_integer &big_integer::operator&=(big_integer const &rhs) {
+    apply_bitwise_operation(rhs, std::bit_and<>());
+    return *this;
 }
 
 big_integer &big_integer::operator|=(big_integer const &rhs) {
-    big_integer &lhs = *this;
-
-    big_integer new_rhs = rhs;
-    lhs.to_complementary2();
-    new_rhs.to_complementary2();
-
-    std::size_t size = std::max(lhs.digits.size(), new_rhs.digits.size());
-    digit_vector new_digits(size);
-#pragma omp parallel for
-    for (std::size_t i = 0; i < size; i++) {
-        new_digits[i] = ((i < lhs.digits.size() ? lhs.digits[i] : 0) |
-                         (i < new_rhs.digits.size() ? new_rhs.digits[i] : 0));
-    }
-    lhs.digits = new_digits;
-    lhs.from_complementary2();
-
-    lhs.shrink();
-    return lhs;
+    apply_bitwise_operation(rhs, std::bit_or<>());
+    return *this;
 }
 
 big_integer &big_integer::operator^=(big_integer const &rhs) {
-    big_integer &lhs = *this;
-
-    big_integer new_rhs = rhs;
-    lhs.to_complementary2();
-    new_rhs.to_complementary2();
-
-    std::size_t size = std::max(lhs.digits.size(), new_rhs.digits.size());
-    digit_vector new_digits(size);
-#pragma omp parallel for
-    for (std::size_t i = 0; i < size; i++) {
-        new_digits[i] = ((i < lhs.digits.size() ? lhs.digits[i] : 0) ^
-                         (i < new_rhs.digits.size() ? new_rhs.digits[i] : 0));
-    }
-    lhs.digits = new_digits;
-    lhs.from_complementary2();
-
-    return lhs;
+    apply_bitwise_operation(rhs, std::bit_xor<>());
+    return *this;
 }
 
 big_integer &big_integer::operator<<=(int rhs) {

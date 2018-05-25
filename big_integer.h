@@ -110,6 +110,9 @@ private:
     void to_complementary2();
 
     void from_complementary2();
+
+    template<class Function>
+    void apply_bitwise_operation(big_integer const &rhs, Function function);
 };
 
 big_integer operator+(big_integer a, big_integer const &b);

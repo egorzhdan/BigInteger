@@ -1,6 +1,6 @@
 #include "digit_vector.h"
 
-digit_vector::digit_vector() noexcept : is_small(true), _size(0), small(0) {}
+digit_vector::digit_vector() noexcept :  small(0), is_small(true), _size(0) {}
 
 digit_vector::digit_vector(std::size_t initial_size) : digit_vector() {
     if (initial_size <= 1) {
@@ -267,6 +267,14 @@ void digit_vector::insert(digit_vector::const_iterator pos, const digit_vector::
         _size++;
         big.data.get()[idx] = value;
     }
+}
+
+digit_vector::reverse_const_iterator digit_vector::rbegin() const {
+    return digit_vector::reverse_const_iterator(end());
+}
+
+digit_vector::reverse_const_iterator digit_vector::rend() const {
+    return digit_vector::reverse_const_iterator(begin());
 }
 
 digit_vector::big_storage::~big_storage() = default;
