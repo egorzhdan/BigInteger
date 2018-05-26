@@ -164,7 +164,7 @@ big_integer::big_integer(digit_vector::digit_t a) : negative(false) {
 
 big_integer::big_integer(int a) {
     digits = digit_vector();
-    digit_vector::digit_t aa = (digit_vector::digit_t) a;
+    auto aa = (digit_vector::digit_t) a;
     if (a < 0) aa = -aa;
     digits.push_back(aa);
     negative = (a < 0);
