@@ -67,7 +67,7 @@ void digit_vector::clear() {
 void digit_vector::increase_capacity() {
     if (is_small) {
         digit_t backup = small;
-        new(&big.data) std::shared_ptr<digit_t>(new digit_t[2]);
+        new(&big.data) std::shared_ptr<digit_t>(new digit_t[2], std::default_delete<digit_t[]>());
         big.data.get()[0] = backup;
         big.capacity = 2;
         is_small = false;
@@ -77,7 +77,7 @@ void digit_vector::increase_capacity() {
         auto *clone = new digit_t[new_capacity];
         std::copy(big.data.get(), big.data.get() + big.capacity, clone);
 
-        new(&big.data) std::shared_ptr<digit_t>(clone);
+        new(&big.data) std::shared_ptr<digit_t>(clone, std::default_delete<digit_t[]>());
         big.capacity = new_capacity;
     }
 }
