@@ -1,6 +1,6 @@
 #include "digit_vector.h"
 
-digit_vector::digit_vector() noexcept :  small(0), is_small(true), _size(0) {}
+digit_vector::digit_vector() noexcept : small(0), is_small(true), _size(0) {}
 
 digit_vector::digit_vector(std::size_t initial_size) : digit_vector() {
     if (initial_size <= 1) {
@@ -11,7 +11,7 @@ digit_vector::digit_vector(std::size_t initial_size) : digit_vector() {
         is_small = false;
         _size = big.capacity = initial_size;
 
-        new(&big.data) std::shared_ptr<digit_t>(new digit_t[_size]);
+        new(&big.data) std::shared_ptr<digit_t>(new digit_t[_size], std::default_delete<digit_t[]>());
     }
 }
 
@@ -40,9 +40,11 @@ digit_vector::digit_vector(digit_vector::digit_t *ptr, std::size_t size) {
         is_small = false;
         big.capacity = size;
 
-        new(&big.data) std::shared_ptr<digit_t>(ptr);
+        new(&big.data) std::shared_ptr<digit_t>(ptr, std::default_delete<digit_t[]>());
     }
 }
+
+digit_vector::big_storage::~big_storage() = default;
 
 digit_vector::~digit_vector() {
     if (!is_small) big.~big_storage();
@@ -276,5 +278,3 @@ digit_vector::reverse_const_iterator digit_vector::rbegin() const {
 digit_vector::reverse_const_iterator digit_vector::rend() const {
     return digit_vector::reverse_const_iterator(begin());
 }
-
-digit_vector::big_storage::~big_storage() = default;
